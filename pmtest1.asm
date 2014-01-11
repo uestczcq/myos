@@ -7,7 +7,7 @@ org 07c00h
 ; GDT
 LABEL_GDT:          Descriptor  0,      0, 0    ;
 LABEL_DESC_CODE32:  Descriptor  0,  SegCode32Len - 1, DA_C + DA_32;
-LABEL_DESC_VIDIO:   Descriptor  0B8000h,    0ffffh, DA_DRW;
+LABEL_DESC_VIDEO:  Descriptor 0B8000h,           0ffffh, DA_DRW	     ; 显存首地址
 ; GDT end
 
 GdtLen  equ     $ - LABEL_GDT   ;
@@ -16,7 +16,7 @@ GdtPtr  dw      GdtLen - 1 ;
 
 ; GDT 段选择子
 SelectorCode32  equ     LABEL_DESC_CODE32 - LABEL_GDT
-SelectorVideo   equ     LABEL_DESC_VIDIO  - LABEL_GDT
+SelectorVideo   equ     LABEL_DESC_VIDEO    - LABEL_GDT
 ; end of [SECTION .gdt]
 
 [SECTION .s16]
@@ -45,7 +45,7 @@ LABEL_BEGIN:
     add    eax, LABEL_GDT        ; eax <- gdt 基地址
     mov    dword [GdtPtr + 2], eax    ; [GdtPtr + 2] <- gdt 基地址
 
-    ; 加载gdt
+    ; 加载 GDTR
     lgdt    [GdtPtr]
 
     ; 关中断
@@ -75,7 +75,7 @@ LABEL_SEG_CODE32:
     mov     gs, ax
     mov    edi, (80 * 11 + 79) * 2    ; 屏幕第 11 行, 第 79 列。
     mov    ah, 0Ch            ; 0000: 黑底    1100: 红字
-    mov    al, 'P'
+    mov    al, '@'
     mov     [gs:edi], ax
 
     jmp     $
